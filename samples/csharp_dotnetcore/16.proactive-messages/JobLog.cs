@@ -1,7 +1,10 @@
 ﻿// Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
+using System.Timers;
+//using System.Threading;
 using Microsoft.Bot.Schema;
 
 namespace Microsoft.BotBuilderSamples
@@ -33,6 +36,26 @@ namespace Microsoft.BotBuilderSamples
             /// The conversation reference to which to send status updates.
             /// </value>
             public ConversationReference Conversation { get; set; }
+
+            // eigen meuk
+            private Timer _timer;
+            public JobData()
+            {
+                //this._timer = new Timer((state) =>
+                //{
+                //    this.TimeElapsed?.Invoke("Timer elapsed from job");
+                //});
+                this._timer = new Timer(TimeSpan.FromSeconds(15).TotalMilliseconds);
+                this._timer.Elapsed += (sender, e) =>
+                {
+                    this.TimeElapsed?.Invoke("Time elapsed from job");
+                };
+                this._timer.AutoReset = true;
+                this._timer.Enabled = true;
+                this._timer.Start();
+            }
+
+            public event Action<string> TimeElapsed;
         }
     }
 }

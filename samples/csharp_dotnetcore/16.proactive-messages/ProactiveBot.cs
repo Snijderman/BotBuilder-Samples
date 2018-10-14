@@ -96,8 +96,7 @@ namespace Microsoft.BotBuilderSamples
                         // Now save it into the JobState
                         await _jobState.SaveChangesAsync(turnContext);
 
-                        await turnContext.SendActivityAsync(
-                            $"We're starting job {job.TimeStamp} for you. We'll notify you when it's complete.");
+                        await turnContext.SendActivityAsync($"We're starting job {job.TimeStamp} for you. We'll notify you when it's complete.");
 
                         break;
 
@@ -208,7 +207,23 @@ namespace Microsoft.BotBuilderSamples
 
             jobLog[jobInfo.TimeStamp] = jobInfo;
 
+            #region eigen meuk
+            jobLog[jobInfo.TimeStamp].TimeElapsed += async (messagge) =>
+            {
+                await turnContext.Adapter.ContinueConversationAsync(AppId, jobInfo.Conversation, CreateTimerCallback($"{messagge} from {jobInfo.TimeStamp}"), default(CancellationToken));
+            };
+            #endregion
+
             return jobInfo;
+        }
+
+        private BotCallbackHandler CreateTimerCallback(string message)
+        {
+            return async (turnContext, token) =>
+            {
+                // Send the user a proactive confirmation message.
+                await turnContext.SendActivityAsync(message);
+            };
         }
 
         // Sends a proactive message to the user.
